@@ -5,16 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>DAXINI SPACE // Spatial OS</title>
 
+  <!-- iOS PWA Hooks -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#ff671f">
+  <meta name="theme-color" content="#030508">
   
+  <!-- Premium Typography -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
+    /* =========================================================
+       CORE VARIABLES & RESET
+       ========================================================= */
     :root {
       --bg: #030508;
-      --matrix-green: #00e5ff; /* Shifted to Daxini Cyan */
+      --cyan: #00e5ff;
       --saffron: #ff671f;
       --glass-bg: rgba(10, 12, 18, 0.75);
       --glass-border: rgba(0, 229, 255, 0.2);
@@ -25,29 +30,33 @@
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
     body { background-color: var(--bg); color: #fff; font-family: var(--font-mono); overflow: hidden; touch-action: none; }
 
-    /* DIAGNOSTICS */
+    /* =========================================================
+       DIAGNOSTICS HUD
+       ========================================================= */
     #os-diagnostics {
       position: fixed; top: 0; left: 0; width: 100%;
-      background: rgba(0,0,0,0.85); color: var(--matrix-green);
+      background: rgba(0,0,0,0.85); color: var(--cyan);
       font-size: 10px; padding: max(env(safe-area-inset-top), 10px) 10px 10px;
-      z-index: 100000; border-bottom: 1px solid var(--matrix-green);
+      z-index: 100000; border-bottom: 1px solid var(--cyan);
       pointer-events: none; display: none;
     }
     .diag-log { margin-bottom: 4px; }
     .diag-time { color: #555; margin-right: 8px; }
 
-    /* FRACTAL ROOM ENVIRONMENT - VISUAL GRID */
+    /* =========================================================
+       FRACTAL ROOM ENVIRONMENT (The Desktop)
+       ========================================================= */
     #room-environment {
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
       z-index: 10; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
-      background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 60%);
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.04) 0%, transparent 60%);
     }
     
     #room-center { text-align: center; pointer-events: none; z-index: 2; }
     #room-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; text-transform: uppercase; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
     #room-lore { font-size: 11px; color: #888; max-width: 250px; line-height: 1.5; margin: 0 auto; }
     
-    /* UPGRADED: App Nodes (Glowing Cards instead of text) */
+    /* APP NODES (Glowing Glass Cards) */
     .room-node-app {
       position: absolute; width: 90px; height: 90px;
       background: var(--glass-bg); border: 1px solid var(--glass-border);
@@ -59,14 +68,21 @@
     }
     
     .room-node-app:hover, .room-node-app:active {
-      border-color: var(--matrix-green); transform: scale(1.1);
+      border-color: var(--cyan); transform: scale(1.1);
       box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
     }
+
+    /* Status Indicators on Nodes */
+    .status-dot {
+      position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%;
+    }
+    .status-live { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .status-pending { background: var(--saffron); box-shadow: 0 0 8px var(--saffron); }
 
     .app-icon { font-size: 24px; margin-bottom: 6px; }
     .app-name { font-size: 9px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Fixed Spatial Positioning (Matches the 3x3 thumb matrix) */
+    /* Spatial Positioning (Matches 3x3 thumb matrix) */
     #node-0 { top: 15%; left: 10%; }
     #node-1 { top: 10%; left: 50%; transform: translateX(-50%); }
     #node-2 { top: 15%; right: 10%; }
@@ -76,7 +92,9 @@
     #node-7 { bottom: 30%; left: 50%; transform: translateX(-50%); }
     #node-8 { bottom: 35%; right: 10%; }
 
-    /* WINDOW MANAGER */
+    /* =========================================================
+       WINDOW MANAGER (The App Viewport)
+       ========================================================= */
     #window-manager {
       position: fixed; inset: 0; 
       padding: max(env(safe-area-inset-top), 20px) 20px; 
@@ -87,7 +105,7 @@
     
     .glass-window {
       pointer-events: auto; flex: 1; min-height: 0;
-      background: var(--bg); border: 1px solid var(--matrix-green); border-radius: 16px;
+      background: var(--bg); border: 1px solid var(--cyan); border-radius: 16px;
       display: flex; flex-direction: column; overflow: hidden;
       animation: slideUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
       box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(0, 229, 255, 0.2);
@@ -99,12 +117,29 @@
       height: 40px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: var(--glass-bg);
       display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
     }
-    .window-title { font-size: 11px; color: var(--matrix-green); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .window-title { font-size: 11px; color: var(--cyan); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;}
     .window-close { color: #fff; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; opacity: 0.7; }
     .window-close:active { opacity: 1; color: var(--saffron); }
+    
     .window-content { flex: 1; width: 100%; border: none; background: #fff; }
+    
+    /* Offline Terminal Styling */
+    .offline-terminal {
+      flex: 1; background: #05070a; color: var(--cyan); 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      padding: 20px; text-align: center;
+      background-image: linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .term-icon { font-size: 40px; margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--saffron)); }
+    .term-title { color: var(--saffron); letter-spacing: 2px; font-weight: 700; margin-bottom: 10px; }
+    .term-desc { font-size: 11px; color: #888; max-width: 280px; line-height: 1.6; }
+    .term-blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    /* THUMB ZONE MATRIX (The 3x3 Grid) */
+    /* =========================================================
+       THUMB ZONE MATRIX (The Swipe Controller)
+       ========================================================= */
     #os-minimap {
       position: fixed; bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
       left: 50%; transform: translateX(-50%); width: 220px; height: 220px;
@@ -114,15 +149,15 @@
     }
     
     #grid-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-    #trace-line { fill: none; stroke: var(--matrix-green); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); transition: stroke 0.2s, filter 0.2s; }
+    #trace-line { fill: none; stroke: var(--cyan); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); transition: stroke 0.2s, filter 0.2s; }
     
     #dots-container { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); z-index: 2; }
     .dot-cell { display: flex; align-items: center; justify-content: center; pointer-events: none; }
     .dot { width: 10px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.2s; }
-    .dot.active { background: var(--matrix-green); box-shadow: 0 0 15px var(--matrix-green); transform: scale(1.5); }
+    .dot.active { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); transform: scale(1.5); }
     .dot.center-dot { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); background: transparent; }
 
-    /* SIGIL RECOGNITION FLASH */
+    /* SIGIL RECOGNITION */
     body.sigil-flash #trace-line { stroke: var(--saffron) !important; filter: drop-shadow(0 0 15px var(--saffron)) !important; }
     body.sigil-flash .dot.active { background: var(--saffron) !important; box-shadow: 0 0 15px var(--saffron) !important; }
     body.sigil-flash #room-title { color: var(--saffron); }
@@ -130,10 +165,13 @@
 </head>
 <body>
 
+  <!-- DIAGNOSTICS -->
   <div id="os-diagnostics"><div id="diag-content"></div></div>
 
+  <!-- WINDOW MANAGER (Viewports) -->
   <div id="window-manager"></div>
 
+  <!-- FRACTAL DESKTOP -->
   <div id="room-environment">
     <div class="room-node-app" id="node-0"></div>
     <div class="room-node-app" id="node-1"></div>
@@ -146,10 +184,11 @@
     
     <div id="room-center">
       <div id="room-title">DAXINI OS</div>
-      <div id="room-lore">Swipe from matrix center to launch, or tap nodes. Tap center to ascend.</div>
+      <div id="room-lore">Swipe from matrix center to launch apps. Tap center to clear screen.</div>
     </div>
   </div>
 
+  <!-- THUMB ZONE MATRIX -->
   <div id="os-minimap">
     <svg id="grid-svg"><polyline id="trace-line" points=""/></svg>
     <div id="dots-container">
@@ -166,7 +205,9 @@
   </div>
 
   <script>
-    /* 1. DIAGNOSTICS ENGINE */
+    /* =========================================================
+       1. DIAGNOSTICS ENGINE
+       ========================================================= */
     const diagEl = document.getElementById('os-diagnostics');
     const diagContent = document.getElementById('diag-content');
     let tapCount = 0;
@@ -189,44 +230,50 @@
       console.log(`[OS] ${type}: ${msg}`);
     }
 
-    /* 2. THE DAXINI APP REGISTRY (The Real Apps) */
+    /* =========================================================
+       2. THE DAXINI MICRO-FRONTEND REGISTRY
+       ========================================================= */
     const DAXINI_GALAXY = {
       name: "Daxini Space",
       lore: "The master application registry.",
       apps: {
-        0: { name: "LogicHub", icon: "ZN", url: "https://logichub.app", type: "engine" },
-        1: { name: "ViaDecide", icon: "VD", url: "https://viadecide.com", type: "hub" },
-        2: { name: "Alchemist", icon: "CH", url: "https://viadecide.com/alchemist", type: "edu" }, // Update URL when deployed
-        3: { name: "SOP Builder", icon: "SP", url: "https://viadecide.com/sop", type: "tool" },
-        5: { name: "SkillHex", icon: "HX", url: "https://viadecide.com/skillhex", type: "hr" },
-        6: { name: "ViaLogic", icon: "VL", url: "https://viadecide.com/vialogic", type: "game" },
-        7: { name: "ViaMath", icon: "VM", url: "https://viadecide.com/viamath", type: "game" },
-        8: { name: "Mars Sim", icon: "MS", url: "https://viadecide.com/mars", type: "sim" }
+        // --- LIVE MICRO-FRONTENDS (External Vercel/GitHub Pages URLs) ---
+        0: { name: "LogicHub", icon: "⚡", url: "https://logichub.app", status: "live" },
+        1: { name: "Daxini HQ", icon: "🏢", url: "https://daxini.xyz", status: "live" },
+        2: { name: "Alchemy", icon: "⚗️", url: "https://via-decide.github.io/PromptAlchemy/", status: "live" }, // Update if different
+        
+        // --- PENDING MIGRATION (Triggers the Offline Terminal) ---
+        3: { name: "SOP Builder", icon: "📄", url: "offline", status: "pending" },
+        5: { name: "SkillHex", icon: "🧠", url: "offline", status: "pending" },
+        6: { name: "ViaLogic", icon: "🕹️", url: "offline", status: "pending" },
+        7: { name: "ViaMath", icon: "🔢", url: "offline", status: "pending" },
+        8: { name: "Mars Sim", icon: "🚀", url: "offline", status: "pending" }
       }
     };
 
     const MASTER_KEY_SIGIL = "1,4,7,6,3,4,5,2,5,8";
 
-    /* 3. HYBRID RENDER ENGINE */
+    /* =========================================================
+       3. HYBRID RENDER ENGINE (Visual Nodes)
+       ========================================================= */
     function renderRoom() {
       const titleEl = document.getElementById('room-title');
       const loreEl = document.getElementById('room-lore');
-      
       titleEl.innerText = DAXINI_GALAXY.name;
       loreEl.innerText = DAXINI_GALAXY.lore;
 
-      // Render the App Cards
       [0,1,2,3,5,6,7,8].forEach(pos => {
         const nodeEl = document.getElementById(`node-${pos}`);
         const appData = DAXINI_GALAXY.apps[pos];
         
         if (appData) {
           nodeEl.style.display = 'flex';
+          const statusClass = appData.status === 'live' ? 'status-live' : 'status-pending';
           nodeEl.innerHTML = `
+            <div class="status-dot ${statusClass}"></div>
             <div class="app-icon">${appData.icon}</div>
             <div class="app-name">${appData.name}</div>
           `;
-          // Direct Click Event (Hybrid Navigation)
           nodeEl.onclick = () => launchApp(pos);
         } else {
           nodeEl.style.display = 'none';
@@ -246,33 +293,56 @@
         renderRoom();
         room.style.transition = "none";
         room.style.transform = isRecall ? "scale(2.5)" : "scale(0.5)";
-        void room.offsetWidth; // Reflow
+        void room.offsetWidth; // Force Reflow
         room.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s";
         room.style.transform = "scale(1)";
         room.style.opacity = "1";
       }, 300);
     }
 
-    /* 4. REAL IFRAME WINDOW MANAGER */
+    /* =========================================================
+       4. SMART IFRAME ROUTER (Prevents 404s)
+       ========================================================= */
     const wm = document.getElementById('window-manager');
     
     function launchApp(posIndex) {
       const appData = DAXINI_GALAXY.apps[posIndex];
       if (!appData) return;
       
-      logDiag('LAUNCH', `Booting ${appData.name}`);
-      
-      // Clear existing windows to keep UI clean on mobile
-      wm.innerHTML = '';
+      logDiag('ROUTER', `Booting ${appData.name} [Status: ${appData.status}]`);
+      wm.innerHTML = ''; // Clear active viewports
       
       const win = document.createElement('div');
       win.className = 'glass-window';
+      
+      let windowContent = '';
+      let statusIndicator = '';
+
+      // ROUTING LOGIC: If Live -> Iframe. If Pending -> Terminal.
+      if (appData.status === 'live' && appData.url !== 'offline') {
+        statusIndicator = `<div class="status-dot status-live" style="position:relative; top:0; right:0;"></div>`;
+        windowContent = `<iframe class="window-content" src="${appData.url}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>`;
+      } else {
+        statusIndicator = `<div class="status-dot status-pending" style="position:relative; top:0; right:0;"></div>`;
+        windowContent = `
+          <div class="offline-terminal">
+            <div class="term-icon">⚠️</div>
+            <div class="term-title">MODULE OFFLINE</div>
+            <p class="term-desc">
+              HTTP 404 avoided. System proxy intercepted request.<br><br>
+              The <strong style="color: #fff;">${appData.name}</strong> artifact is currently in the build queue awaiting deployment to the Vercel Edge Network.<br><br>
+              <span style="color: var(--saffron);">STATUS: PENDING MIGRATION <span class="term-blink">_</span></span>
+            </p>
+          </div>
+        `;
+      }
+
       win.innerHTML = `
         <div class="window-header">
-          <span class="window-title">${appData.name}</span>
-          <span class="window-close" title="Close App">✕</span>
+          <span class="window-title">${statusIndicator} ${appData.name}</span>
+          <span class="window-close" title="Close">✕</span>
         </div>
-        <iframe class="window-content" src="${appData.url}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        ${windowContent}
       `;
       
       win.querySelector('.window-close').addEventListener('click', () => {
@@ -283,7 +353,9 @@
       wm.appendChild(win);
     }
 
-    /* 5. PATTERN TRACER */
+    /* =========================================================
+       5. MATRIX GESTURE ENGINE
+       ========================================================= */
     const minimap = document.getElementById('os-minimap');
     const svgLine = document.getElementById('trace-line');
     let path = [];
@@ -303,7 +375,7 @@
     }
 
     function handleTouch(e) {
-      const t = e.touches[0];
+      const t = e.touches ? e.touches[0] : e;
       const mapRect = minimap.getBoundingClientRect();
       const x = t.clientX - mapRect.left;
       const y = t.clientY - mapRect.top;
@@ -322,17 +394,20 @@
       drawSVG(x, y);
     }
 
+    // Touch Support
     minimap.addEventListener('touchstart', e => { e.preventDefault(); isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch(e); });
     minimap.addEventListener('touchmove', e => { e.preventDefault(); if (isTracing) handleTouch(e); });
     minimap.addEventListener('touchend', e => { e.preventDefault(); isTracing = false; drawSVG(); processPattern(); });
 
-    // Desktop Mouse Fallback for the Matrix Engine
+    // Mouse Support for Desktop
     let isMouseDown = false;
-    minimap.addEventListener('mousedown', e => { isMouseDown = true; isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch({touches:[e]}); });
-    minimap.addEventListener('mousemove', e => { if (isMouseDown && isTracing) handleTouch({touches:[e]}); });
+    minimap.addEventListener('mousedown', e => { isMouseDown = true; isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch(e); });
+    minimap.addEventListener('mousemove', e => { if (isMouseDown && isTracing) handleTouch(e); });
     window.addEventListener('mouseup', () => { if(isMouseDown){ isMouseDown = false; isTracing = false; drawSVG(); processPattern(); }});
 
-    /* 6. THE ROUTING ENGINE */
+    /* =========================================================
+       6. OS EVENT LOOP
+       ========================================================= */
     function processPattern() {
       const seed = path.join(',');
       if (!seed) return;
@@ -345,29 +420,24 @@
         }
       }, 500);
 
-      // MASTER KEY
       if (seed === MASTER_KEY_SIGIL) {
         document.body.classList.add('sigil-flash');
         logDiag('MASTER_SIGIL', 'Cryptographic signature recognized.');
-        setTimeout(() => { launchApp(1); }, 300); // Launches ViaDecide as Root
+        setTimeout(() => { launchApp(1); }, 300); // Launches Daxini HQ
         return;
       }
 
-      // APP LAUNCH SWIPE (Center to Outer Node)
+      // App Launch (Swipe from center '4' to any outer node)
       if (path.length === 2 && path[0] === 4) {
         const target = path[1];
         if (DAXINI_GALAXY.apps[target]) {
-          // Visual flare
           animateFractalTransition(target, false);
-          // Wait for animation, then open iframe
           setTimeout(() => launchApp(target), 300);
-        } else {
-          logDiag('ERROR', `Sector ${target} is empty.`);
         }
         return;
       }
 
-      // CLOSE ALL WINDOWS (Tap Center)
+      // Clear Screen (Tap Center '4')
       if (path.length === 1 && path[0] === 4) {
         wm.innerHTML = '';
         animateFractalTransition(4, true);
@@ -376,9 +446,9 @@
       }
     }
 
-    // Init display
+    // Boot
     renderRoom();
-    logDiag('SYSTEM', 'Daxini Space OS Online.');
+    logDiag('SYSTEM', 'Daxini Space OS Online. Micro-Frontend router active.');
 
   </script>
 </body>
