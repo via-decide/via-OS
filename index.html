@@ -3,34 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>VIA Spatial OS</title>
+  <title>DAXINI SPACE // Spatial OS</title>
 
-  <!-- iOS PWA Hooks -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#ff671f">
   
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* =========================================================
-       CORE VARIABLES & RESET
-       ========================================================= */
     :root {
       --bg: #030508;
-      --matrix-green: #00ff88;
+      --matrix-green: #00e5ff; /* Shifted to Daxini Cyan */
       --saffron: #ff671f;
-      --glass-bg: rgba(6, 10, 20, 0.7);
-      --glass-border: rgba(0, 255, 136, 0.2);
+      --glass-bg: rgba(10, 12, 18, 0.75);
+      --glass-border: rgba(0, 229, 255, 0.2);
       --font-mono: 'JetBrains Mono', monospace;
       --font-display: 'Syne', sans-serif;
     }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
     body { background-color: var(--bg); color: #fff; font-family: var(--font-mono); overflow: hidden; touch-action: none; }
 
-    /* =========================================================
-       DIAGNOSTIC HUD (Hidden by default, triple tap top left)
-       ========================================================= */
+    /* DIAGNOSTICS */
     #os-diagnostics {
       position: fixed; top: 0; left: 0; width: 100%;
       background: rgba(0,0,0,0.85); color: var(--matrix-green);
@@ -41,144 +36,120 @@
     .diag-log { margin-bottom: 4px; }
     .diag-time { color: #555; margin-right: 8px; }
 
-    /* =========================================================
-       PWA INSTALL TRAP (Strict enforcement)
-       ========================================================= */
-    #install-trap {
-      position: fixed; inset: 0; background: var(--bg); z-index: 99999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 40px; text-align: center;
-    }
-    .trap-logo { font-family: var(--font-display); font-size: 32px; color: var(--saffron); margin-bottom: 20px; letter-spacing: -1px; }
-    .trap-text { font-size: 14px; color: #888; margin-bottom: 30px; line-height: 1.6; max-width: 300px; }
-    .btn-install {
-      background: transparent; border: 1px solid var(--matrix-green); color: var(--matrix-green);
-      padding: 14px 24px; font-family: var(--font-mono); font-size: 12px; cursor: pointer;
-      border-radius: 8px; text-transform: uppercase; letter-spacing: 2px;
-    }
-    .btn-bypass { margin-top: 20px; font-size: 10px; color: #444; background: none; border: none; cursor: pointer; text-decoration: underline; }
-
-    /* =========================================================
-       FRACTAL ROOM ENVIRONMENT (Buttonless UI)
-       ========================================================= */
+    /* FRACTAL ROOM ENVIRONMENT - VISUAL GRID */
     #room-environment {
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-      z-index: 10; transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s;
+      z-index: 10; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 60%);
     }
-    #room-center { text-align: center; pointer-events: none; }
-    #room-title { font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; text-transform: uppercase; }
-    #room-lore { font-size: 11px; color: #666; max-width: 250px; line-height: 1.5; margin: 0 auto; }
     
-    /* The 8 directional text labels indicating where a swipe goes */
-    .room-node-label {
-      position: absolute; font-size: 10px; color: rgba(255,255,255,0.4);
-      pointer-events: none; text-transform: uppercase; letter-spacing: 1px;
-      transition: color 0.2s; white-space: nowrap;
+    #room-center { text-align: center; pointer-events: none; z-index: 2; }
+    #room-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; text-transform: uppercase; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+    #room-lore { font-size: 11px; color: #888; max-width: 250px; line-height: 1.5; margin: 0 auto; }
+    
+    /* UPGRADED: App Nodes (Glowing Cards instead of text) */
+    .room-node-app {
+      position: absolute; width: 90px; height: 90px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 8px; cursor: pointer; pointer-events: auto;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
-    /* Fixed Positioning around the center */
-    #label-0 { top: 20%; left: 15%; }
-    #label-1 { top: 15%; left: 50%; transform: translateX(-50%); }
-    #label-2 { top: 20%; right: 15%; }
-    #label-3 { top: 40%; left: 10%; }
-    #label-5 { top: 40%; right: 10%; }
-    #label-6 { bottom: 35%; left: 15%; }
-    #label-7 { bottom: 30%; left: 50%; transform: translateX(-50%); }
-    #label-8 { bottom: 35%; right: 15%; }
+    
+    .room-node-app:hover, .room-node-app:active {
+      border-color: var(--matrix-green); transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    }
 
-    /* =========================================================
-       WINDOW MANAGER (Split-Screen Glass Viewports)
-       ========================================================= */
+    .app-icon { font-size: 24px; margin-bottom: 6px; }
+    .app-name { font-size: 9px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Fixed Spatial Positioning (Matches the 3x3 thumb matrix) */
+    #node-0 { top: 15%; left: 10%; }
+    #node-1 { top: 10%; left: 50%; transform: translateX(-50%); }
+    #node-2 { top: 15%; right: 10%; }
+    #node-3 { top: 40%; left: 5%; }
+    #node-5 { top: 40%; right: 5%; }
+    #node-6 { bottom: 35%; left: 10%; }
+    #node-7 { bottom: 30%; left: 50%; transform: translateX(-50%); }
+    #node-8 { bottom: 35%; right: 10%; }
+
+    /* WINDOW MANAGER */
     #window-manager {
       position: fixed; inset: 0; 
       padding: max(env(safe-area-inset-top), 20px) 20px; 
-      /* THUMB ZONE CLEARANCE - Crucial for mobile ergonomics */
-      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 300px); 
+      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 260px); 
       display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
       z-index: 50; pointer-events: none;
     }
+    
     .glass-window {
       pointer-events: auto; flex: 1; min-height: 0;
-      background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border); border-radius: 20px;
+      background: var(--bg); border: 1px solid var(--matrix-green); border-radius: 16px;
       display: flex; flex-direction: column; overflow: hidden;
       animation: slideUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(0, 229, 255, 0.2);
     }
-    @keyframes slideUp { from { transform: translateY(50px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+    
+    @keyframes slideUp { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+    
     .window-header {
-      height: 36px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+      height: 40px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: var(--glass-bg);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
     }
-    .window-title { font-size: 10px; color: var(--matrix-green); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-    .window-close { color: #888; font-size: 14px; cursor: pointer; padding: 4px; }
-    .window-content { flex: 1; width: 100%; border: none; background: #000; }
+    .window-title { font-size: 11px; color: var(--matrix-green); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .window-close { color: #fff; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; opacity: 0.7; }
+    .window-close:active { opacity: 1; color: var(--saffron); }
+    .window-content { flex: 1; width: 100%; border: none; background: #fff; }
 
-    /* =========================================================
-       THUMB ZONE MATRIX (The 3x3 Grid)
-       ========================================================= */
+    /* THUMB ZONE MATRIX (The 3x3 Grid) */
     #os-minimap {
-      position: fixed;
-      /* Anchored securely above the native swipe bar */
-      bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
-      left: 50%; transform: translateX(-50%);
-      width: 260px; height: 260px;
-      z-index: 9999;
-      touch-action: none; /* Prevents browser scrolling while drawing */
+      position: fixed; bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
+      left: 50%; transform: translateX(-50%); width: 220px; height: 220px;
+      z-index: 9999; touch-action: none;
+      background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
     }
     
     #grid-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-    #trace-line { fill: none; stroke: var(--matrix-green); stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(0,255,136,0.5)); transition: stroke 0.2s, filter 0.2s; }
+    #trace-line { fill: none; stroke: var(--matrix-green); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); transition: stroke 0.2s, filter 0.2s; }
     
     #dots-container { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); z-index: 2; }
     .dot-cell { display: flex; align-items: center; justify-content: center; pointer-events: none; }
-    .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: all 0.2s; }
-    .dot.active { background: var(--matrix-green); box-shadow: 0 0 12px var(--matrix-green); transform: scale(1.5); }
-    .dot.center-dot { width: 12px; height: 12px; border: 1px solid rgba(255,255,255,0.3); background: transparent; }
+    .dot { width: 10px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.2s; }
+    .dot.active { background: var(--matrix-green); box-shadow: 0 0 15px var(--matrix-green); transform: scale(1.5); }
+    .dot.center-dot { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); background: transparent; }
 
-    /* =========================================================
-       SIGIL RECOGNITION FLASH (Master Key Visuals)
-       ========================================================= */
+    /* SIGIL RECOGNITION FLASH */
     body.sigil-flash #trace-line { stroke: var(--saffron) !important; filter: drop-shadow(0 0 15px var(--saffron)) !important; }
     body.sigil-flash .dot.active { background: var(--saffron) !important; box-shadow: 0 0 15px var(--saffron) !important; }
     body.sigil-flash #room-title { color: var(--saffron); }
-
   </style>
 </head>
 <body>
 
-  <!-- DIAGNOSTICS -->
-  <div id="os-diagnostics">
-    <div id="diag-content"></div>
-  </div>
+  <div id="os-diagnostics"><div id="diag-content"></div></div>
 
-  <!-- PWA INSTALL TRAP -->
-  <div id="install-trap">
-    <div class="trap-logo">DH OS</div>
-    <div class="trap-text">A standalone spatial environment. Installation required for neural linkage.</div>
-    <button class="btn-install" id="btn-install">Initialize System</button>
-    <button class="btn-bypass" id="btn-bypass">Bypass (Developer Mode)</button>
-  </div>
-
-  <!-- WINDOW MANAGER (Split Screen) -->
   <div id="window-manager"></div>
 
-  <!-- FRACTAL ROOM ENVIRONMENT -->
   <div id="room-environment">
-    <!-- Directional Labels for fractal diving -->
-    <div class="room-node-label" id="label-0"></div>
-    <div class="room-node-label" id="label-1"></div>
-    <div class="room-node-label" id="label-2"></div>
-    <div class="room-node-label" id="label-3"></div>
-    <div class="room-node-label" id="label-5"></div>
-    <div class="room-node-label" id="label-6"></div>
-    <div class="room-node-label" id="label-7"></div>
-    <div class="room-node-label" id="label-8"></div>
+    <div class="room-node-app" id="node-0"></div>
+    <div class="room-node-app" id="node-1"></div>
+    <div class="room-node-app" id="node-2"></div>
+    <div class="room-node-app" id="node-3"></div>
+    <div class="room-node-app" id="node-5"></div>
+    <div class="room-node-app" id="node-6"></div>
+    <div class="room-node-app" id="node-7"></div>
+    <div class="room-node-app" id="node-8"></div>
     
     <div id="room-center">
-      <div id="room-title">Galaxy Core</div>
-      <div id="room-lore">Swipe from center to dive into a sector. Tap center to ascend.</div>
+      <div id="room-title">DAXINI OS</div>
+      <div id="room-lore">Swipe from matrix center to launch, or tap nodes. Tap center to ascend.</div>
     </div>
   </div>
 
-  <!-- THUMB ZONE MATRIX -->
   <div id="os-minimap">
     <svg id="grid-svg"><polyline id="trace-line" points=""/></svg>
     <div id="dots-container">
@@ -195,52 +166,15 @@
   </div>
 
   <script>
-    /* =========================================================
-       0. PWA ENFORCEMENT & SERVICE WORKER INJECTION
-       ========================================================= */
-    const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });`;
-    const blob = new Blob([swCode], {type: 'application/javascript'});
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(blob));
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault(); deferredPrompt = e;
-    });
-
-    document.getElementById('btn-install').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') document.getElementById('install-trap').remove();
-      } else {
-        alert("PWA install not ready. Use browser menu 'Add to Home Screen'.");
-      }
-    });
-
-    document.getElementById('btn-bypass').addEventListener('click', () => {
-      document.getElementById('install-trap').remove();
-    });
-
-    // Auto-remove trap if already standalone
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      document.getElementById('install-trap').remove();
-    }
-
-    /* =========================================================
-       1. DIAGNOSTICS ENGINE
-       ========================================================= */
+    /* 1. DIAGNOSTICS ENGINE */
     const diagEl = document.getElementById('os-diagnostics');
     const diagContent = document.getElementById('diag-content');
     let tapCount = 0;
 
-    // Triple tap top-left corner to toggle diagnostics
     document.body.addEventListener('touchstart', (e) => {
       if (e.touches[0].clientX < 60 && e.touches[0].clientY < 60) {
         tapCount++;
-        if (tapCount === 3) {
-          diagEl.style.display = diagEl.style.display === 'none' ? 'block' : 'none';
-          tapCount = 0;
-        }
+        if (tapCount === 3) { diagEl.style.display = diagEl.style.display === 'none' ? 'block' : 'none'; tapCount = 0; }
         setTimeout(() => tapCount = 0, 1500);
       }
     });
@@ -255,87 +189,53 @@
       console.log(`[OS] ${type}: ${msg}`);
     }
 
-    /* =========================================================
-       2. ECOSYSTEM DATA (The ViaDecide Architecture)
-       ========================================================= */
-    const ROOT_GALAXY = {
-      name: "ViaDecide Root",
-      lore: "The central nervous system.",
-      nodes: {
-        0: { id: "logic-academy", name: "Logic Academy", lore: "Mathematical giants.", type: "zone", 
-             tools: [{name: "Thales"}, {name: "Pythagoras"}, {name: "Euclid"}, {name: "Archimedes"}, null, {name: "Aryabhata"}, {name: "Al-Khwarizmi"}] 
-           },
-        1: { id: "creator-studio", name: "Creator Studio", lore: "PromptAlchemy packs.", type: "zone",
-             tools: [{name: "Course Builder"}, {name: "Idea Remixer"}, {name: "Palette Studio"}]
-           },
-        2: { id: "analytics-bay", name: "Analytics Bay", lore: "Business signals.", type: "zone",
-             tools: [{name: "Revenue Forecaster"}, {name: "Meeting Cost"}, {name: "Code Gen"}]
-           },
-        3: { id: "game-arena", name: "Game Arena", lore: "Decisions become battles.", type: "zone",
-             tools: [{name: "HexWars"}, {name: "ViaLogic"}, {name: "Snake"}, {name: "FreeCell"}]
-           },
-        5: { id: "mission-control", name: "Mission Control", lore: "Orbital command.", type: "zone",
-             tools: [{name: "Command Center"}, {name: "Tool Discovery"}, {name: "Drone UI"}]
-           },
-        6: { id: "decision-core", name: "Decision Core", lore: "The crystalline heart.", type: "zone",
-             tools: [{name: "Matrix"}, {name: "Scenario Planner"}, {name: "Output Evaluator"}]
-           },
-        7: { id: "orchard-engine", name: "Orchard Engine", lore: "A living meritocracy.", type: "zone",
-             tools: [{name: "Player Signup"}, {name: "Daily Quests"}, {name: "Yield Engine"}, {name: "Fair Ranking"}]
-           },
-        8: { id: "mars-outpost", name: "Mars Outpost", lore: "Sol 1. Basaltic Flats.", type: "zone",
-             tools: [{name: "Mars Sim"}, {name: "Wave 1 Sim"}, {name: "Market Dynamics"}]
-           }
+    /* 2. THE DAXINI APP REGISTRY (The Real Apps) */
+    const DAXINI_GALAXY = {
+      name: "Daxini Space",
+      lore: "The master application registry.",
+      apps: {
+        0: { name: "LogicHub", icon: "ZN", url: "https://logichub.app", type: "engine" },
+        1: { name: "ViaDecide", icon: "VD", url: "https://viadecide.com", type: "hub" },
+        2: { name: "Alchemist", icon: "CH", url: "https://viadecide.com/alchemist", type: "edu" }, // Update URL when deployed
+        3: { name: "SOP Builder", icon: "SP", url: "https://viadecide.com/sop", type: "tool" },
+        5: { name: "SkillHex", icon: "HX", url: "https://viadecide.com/skillhex", type: "hr" },
+        6: { name: "ViaLogic", icon: "VL", url: "https://viadecide.com/vialogic", type: "game" },
+        7: { name: "ViaMath", icon: "VM", url: "https://viadecide.com/viamath", type: "game" },
+        8: { name: "Mars Sim", icon: "MS", url: "https://viadecide.com/mars", type: "sim" }
       }
     };
 
-    const AppRegistry = {
-      "0,1,2": "whatsapp://send",
-      "3,4,5": "spotify://",
-      "6,7,8": "vnd.youtube://"
-    };
-
-    // The Saffron Signature: 2-5-8-7-4-5-6-3-6-9 mapped to array indices 0-8
     const MASTER_KEY_SIGIL = "1,4,7,6,3,4,5,2,5,8";
 
-    /* =========================================================
-       3. FRACTAL NAVIGATOR
-       ========================================================= */
-    let currentZone = null; // null = ROOT
-
+    /* 3. HYBRID RENDER ENGINE */
     function renderRoom() {
       const titleEl = document.getElementById('room-title');
       const loreEl = document.getElementById('room-lore');
       
-      // Clear labels
-      [0,1,2,3,5,6,7,8].forEach(i => {
-        document.getElementById(`label-${i}`).innerText = "";
-      });
+      titleEl.innerText = DAXINI_GALAXY.name;
+      loreEl.innerText = DAXINI_GALAXY.lore;
 
-      if (!currentZone) {
-        titleEl.innerText = ROOT_GALAXY.name;
-        loreEl.innerText = ROOT_GALAXY.lore;
-        Object.keys(ROOT_GALAXY.nodes).forEach(pos => {
-          document.getElementById(`label-${pos}`).innerText = ROOT_GALAXY.nodes[pos].name;
-        });
-      } else {
-        titleEl.innerText = currentZone.name;
-        loreEl.innerText = currentZone.lore;
-        // Map tools to outer dots
-        if(currentZone.tools) {
-           const mapSlots = [0,1,2,3,5,6,7,8];
-           currentZone.tools.forEach((tool, idx) => {
-             if(tool && mapSlots[idx] !== undefined) {
-               document.getElementById(`label-${mapSlots[idx]}`).innerText = tool.name;
-             }
-           });
+      // Render the App Cards
+      [0,1,2,3,5,6,7,8].forEach(pos => {
+        const nodeEl = document.getElementById(`node-${pos}`);
+        const appData = DAXINI_GALAXY.apps[pos];
+        
+        if (appData) {
+          nodeEl.style.display = 'flex';
+          nodeEl.innerHTML = `
+            <div class="app-icon">${appData.icon}</div>
+            <div class="app-name">${appData.name}</div>
+          `;
+          // Direct Click Event (Hybrid Navigation)
+          nodeEl.onclick = () => launchApp(pos);
+        } else {
+          nodeEl.style.display = 'none';
         }
-      }
+      });
     }
 
     function animateFractalTransition(targetPos, isRecall) {
       const room = document.getElementById('room-environment');
-      // Define transform origins based on swipe direction
       const origins = { 0:"top left", 1:"top center", 2:"top right", 3:"center left", 5:"center right", 6:"bottom left", 7:"bottom center", 8:"bottom right" };
       
       room.style.transformOrigin = isRecall ? "center center" : (origins[targetPos] || "center");
@@ -346,52 +246,49 @@
         renderRoom();
         room.style.transition = "none";
         room.style.transform = isRecall ? "scale(2.5)" : "scale(0.5)";
-        
-        // Force reflow
-        void room.offsetWidth;
-        
-        room.style.transition = "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s";
+        void room.offsetWidth; // Reflow
+        room.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s";
         room.style.transform = "scale(1)";
         room.style.opacity = "1";
       }, 300);
     }
 
-    /* =========================================================
-       4. WINDOW MANAGER (Split Screen)
-       ========================================================= */
+    /* 4. REAL IFRAME WINDOW MANAGER */
     const wm = document.getElementById('window-manager');
     
-    function openWindow(title, fakeUrl) {
-      // Max 2 windows
-      if (wm.children.length >= 2) {
-        wm.firstElementChild.remove();
-      }
+    function launchApp(posIndex) {
+      const appData = DAXINI_GALAXY.apps[posIndex];
+      if (!appData) return;
+      
+      logDiag('LAUNCH', `Booting ${appData.name}`);
+      
+      // Clear existing windows to keep UI clean on mobile
+      wm.innerHTML = '';
       
       const win = document.createElement('div');
       win.className = 'glass-window';
       win.innerHTML = `
         <div class="window-header">
-          <span class="window-title">${title}</span>
-          <span class="window-close">✕</span>
+          <span class="window-title">${appData.name}</span>
+          <span class="window-close" title="Close App">✕</span>
         </div>
-        <div class="window-content" style="display:flex;align-items:center;justify-content:center;color:#444;font-size:12px;">
-          [ Iframe Container: ${fakeUrl} ]
-        </div>
+        <iframe class="window-content" src="${appData.url}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
       `;
       
-      win.querySelector('.window-close').addEventListener('click', () => win.remove());
+      win.querySelector('.window-close').addEventListener('click', () => {
+        win.remove();
+        logDiag('TERMINATE', `Closed ${appData.name}`);
+      });
+      
       wm.appendChild(win);
     }
 
-    /* =========================================================
-       5. PATTERN TRACER (Allows Overlapping / Continuous Flow)
-       ========================================================= */
+    /* 5. PATTERN TRACER */
     const minimap = document.getElementById('os-minimap');
     const svgLine = document.getElementById('trace-line');
     let path = [];
     let isTracing = false;
 
-    // Get dot centers for SVG drawing
     function getDotCenter(idx) {
       const dot = document.getElementById(`dot-${idx}`);
       const rect = dot.getBoundingClientRect();
@@ -400,10 +297,7 @@
     }
 
     function drawSVG(touchX, touchY) {
-      let pts = path.map(idx => {
-        let c = getDotCenter(idx);
-        return `${c.x},${c.y}`;
-      });
+      let pts = path.map(idx => { let c = getDotCenter(idx); return `${c.x},${c.y}`; });
       if(isTracing && touchX !== undefined) pts.push(`${touchX},${touchY}`);
       svgLine.setAttribute('points', pts.join(' '));
     }
@@ -414,18 +308,14 @@
       const x = t.clientX - mapRect.left;
       const y = t.clientY - mapRect.top;
       
-      // Calculate grid cell (3x3)
       const col = Math.floor((x / mapRect.width) * 3);
       const row = Math.floor((y / mapRect.height) * 3);
       
       if (col >= 0 && col <= 2 && row >= 0 && row <= 2) {
         const idx = row * 3 + col;
-        // ONLY restriction: don't push the exact same dot twice in a row. Loops are allowed.
         if (path.length === 0 || path[path.length - 1] !== idx) {
           path.push(idx);
           document.getElementById(`dot-${idx}`).classList.add('active');
-          
-          // Haptic feedback if available
           if(navigator.vibrate) navigator.vibrate(15);
         }
       }
@@ -436,14 +326,17 @@
     minimap.addEventListener('touchmove', e => { e.preventDefault(); if (isTracing) handleTouch(e); });
     minimap.addEventListener('touchend', e => { e.preventDefault(); isTracing = false; drawSVG(); processPattern(); });
 
-    /* =========================================================
-       6. THE STRICT WATERFALL ROUTING ENGINE
-       ========================================================= */
+    // Desktop Mouse Fallback for the Matrix Engine
+    let isMouseDown = false;
+    minimap.addEventListener('mousedown', e => { isMouseDown = true; isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch({touches:[e]}); });
+    minimap.addEventListener('mousemove', e => { if (isMouseDown && isTracing) handleTouch({touches:[e]}); });
+    window.addEventListener('mouseup', () => { if(isMouseDown){ isMouseDown = false; isTracing = false; drawSVG(); processPattern(); }});
+
+    /* 6. THE ROUTING ENGINE */
     function processPattern() {
       const seed = path.join(',');
       if (!seed) return;
 
-      // Reset traces visually after a delay
       setTimeout(() => {
         if(!isTracing) {
            svgLine.setAttribute('points', '');
@@ -452,71 +345,43 @@
         }
       }, 500);
 
-      // STEP A: THE MASTER KEY SIGIL
+      // MASTER KEY
       if (seed === MASTER_KEY_SIGIL) {
         document.body.classList.add('sigil-flash');
         logDiag('MASTER_SIGIL', 'Cryptographic signature recognized.');
-        
-        // 300ms theatrical pause before launching Root Console
-        setTimeout(() => {
-          openWindow('Developer Console [CLASSIFIED]', 'root://dev.vault');
-        }, 300);
+        setTimeout(() => { launchApp(1); }, 300); // Launches ViaDecide as Root
         return;
       }
 
-      // STEP B: NATIVE DEEP LINKS
-      if (AppRegistry[seed]) {
-        logDiag('DEEP_LINK', `Firing Intent: ${AppRegistry[seed]}`);
-        window.location.href = AppRegistry[seed];
-        return;
-      }
-
-      // STEP C: FRACTAL NAVIGATION (Buttonless Movement)
-      // Check for Swipe (Length 2, starting from 4)
+      // APP LAUNCH SWIPE (Center to Outer Node)
       if (path.length === 2 && path[0] === 4) {
         const target = path[1];
-        if (!currentZone) {
-          // Dive into a Macro Zone
-          if (ROOT_GALAXY.nodes[target]) {
-            currentZone = ROOT_GALAXY.nodes[target];
-            logDiag('FRACTAL_NAV', `Diving to Zone: ${currentZone.name}`);
-            animateFractalTransition(target, false);
-          }
+        if (DAXINI_GALAXY.apps[target]) {
+          // Visual flare
+          animateFractalTransition(target, false);
+          // Wait for animation, then open iframe
+          setTimeout(() => launchApp(target), 300);
         } else {
-          // Already in a Zone, swipe opens a Tool
-          const mapSlots = [0,1,2,3,-1,5,6,7,8]; // -1 is center
-          const toolIdx = mapSlots.indexOf(target);
-          if(currentZone.tools && currentZone.tools[toolIdx]) {
-             logDiag('TOOL_LAUNCH', `Opening ${currentZone.tools[toolIdx].name}`);
-             openWindow(currentZone.tools[toolIdx].name, `tool://${currentZone.id}/${toolIdx}`);
-          }
+          logDiag('ERROR', `Sector ${target} is empty.`);
         }
         return;
       }
 
-      // STEP D: FRACTAL RECALL (Zooming Out)
-      // Tap center dot only
+      // CLOSE ALL WINDOWS (Tap Center)
       if (path.length === 1 && path[0] === 4) {
-        if (currentZone) {
-           logDiag('FRACTAL_NAV', 'Ascending to Galaxy Root');
-           currentZone = null;
-           animateFractalTransition(4, true);
-        } else {
-           logDiag('FRACTAL_NAV', 'Already at Root');
-        }
+        wm.innerHTML = '';
+        animateFractalTransition(4, true);
+        logDiag('SYSTEM', 'Cleared active viewports.');
         return;
       }
-
-      // STEP E: PROCEDURAL FALLBACK (Uncharted Space)
-      logDiag('PROCEDURAL', `Unknown pattern trace: [${seed}]. Ignored.`);
-      // Optional: Flash red or glitch effect here.
     }
 
     // Init display
     renderRoom();
-    logDiag('SYSTEM', 'VIA OS Boot Sequence Complete. Waiting for input.');
+    logDiag('SYSTEM', 'Daxini Space OS Online.');
 
   </script>
 </body>
 </html>
+
 
