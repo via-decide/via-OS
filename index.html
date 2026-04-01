@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#030508">
-  
+
   <!-- Premium Typography -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -32,7 +32,7 @@
       --font-mono: 'JetBrains Mono', monospace;
       --font-display: 'Syne', sans-serif;
     }
-    
+
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
     body { background-color: var(--bg); color: #fff; font-family: var(--font-mono); overflow: hidden; touch-action: none; }
 
@@ -50,6 +50,21 @@
     .diag-time { color: #555; margin-right: 8px; }
 
     /* =========================================================
+       STARFIELD BACKGROUND
+       ========================================================= */
+    #starfield {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: twinkle linear infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* =========================================================
        FRACTAL ROOM ENVIRONMENT (The Desktop)
        ========================================================= */
     #room-environment {
@@ -57,38 +72,53 @@
       z-index: 10; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
       background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.04) 0%, transparent 60%);
     }
-    
+
     #room-center { text-align: center; pointer-events: none; z-index: 2; }
-    #room-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; text-transform: uppercase; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+    #room-title {
+      font-family: var(--font-display); font-size: 32px; font-weight: 800;
+      letter-spacing: -1px; margin-bottom: 8px; text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+      transition: color 0.3s;
+    }
     #room-lore { font-size: 11px; color: #888; max-width: 250px; line-height: 1.5; margin: 0 auto; }
-    
+
+    /* OS VERSION BADGE */
+    .os-badge {
+      display: inline-block; margin-top: 12px;
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(0,229,255,0.4); border: 1px solid rgba(0,229,255,0.15);
+      padding: 3px 10px; border-radius: 999px;
+    }
+
     /* APP NODES (Glowing Glass Cards) */
     .room-node-app {
       position: absolute; width: 90px; height: 90px;
       background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: 16px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       text-align: center; padding: 8px; cursor: pointer; pointer-events: auto;
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
-    
     .room-node-app:hover, .room-node-app:active {
       border-color: var(--cyan); transform: scale(1.1);
       box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
     }
+    .room-node-app:active { transform: scale(0.97); }
 
     /* Status Indicators on Nodes */
     .status-dot {
       position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%;
     }
-    .status-live { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .status-live { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse-dot 2s ease infinite; }
     .status-pending { background: var(--saffron); box-shadow: 0 0 8px var(--saffron); }
+    @keyframes pulse-dot { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
 
     .app-icon { font-size: 24px; margin-bottom: 6px; }
-    .app-name { font-size: 9px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
+    .app-name { font-size: 9px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; }
 
-    /* Spatial Positioning (Matches 3x3 thumb matrix) */
+    /* Spatial Positioning — Matches 3×3 thumb matrix */
     #node-0 { top: 15%; left: 10%; }
     #node-1 { top: 10%; left: 50%; transform: translateX(-50%); }
     #node-2 { top: 15%; right: 10%; }
@@ -102,39 +132,56 @@
        WINDOW MANAGER (The App Viewport)
        ========================================================= */
     #window-manager {
-      position: fixed; inset: 0; 
-      padding: max(env(safe-area-inset-top), 20px) 20px; 
-      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 260px); 
+      position: fixed; inset: 0;
+      padding: max(env(safe-area-inset-top), 20px) 20px;
+      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 260px);
       display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
       z-index: 50; pointer-events: none;
     }
-    
+
     .glass-window {
       pointer-events: auto; flex: 1; min-height: 0;
       background: var(--bg); border: 1px solid var(--cyan); border-radius: 16px;
       display: flex; flex-direction: column; overflow: hidden;
       animation: slideUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(0, 229, 255, 0.2);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,229,255,0.2);
     }
-    
-    @keyframes slideUp { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-    
+    @keyframes slideUp {
+      from { transform: translateY(100px) scale(0.9); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
     .window-header {
-      height: 40px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: var(--glass-bg);
+      height: 44px; border-bottom: 1px solid rgba(0,229,255,0.2);
+      background: var(--glass-bg);
       display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+      flex-shrink: 0;
     }
-    .window-title { font-size: 11px; color: var(--cyan); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;}
+    .window-title {
+      font-size: 11px; color: var(--cyan); font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .window-controls { display: flex; align-items: center; gap: 10px; }
+    .window-btn {
+      color: rgba(255,255,255,0.5); font-size: 11px; cursor: pointer;
+      padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.15s; font-family: var(--font-mono);
+    }
+    .window-btn:hover { color: #fff; border-color: rgba(0,229,255,0.4); }
     .window-close { color: #fff; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; opacity: 0.7; }
     .window-close:active { opacity: 1; color: var(--saffron); }
-    
-    .window-content { flex: 1; width: 100%; border: none; background: #fff; }
-    
-    /* Offline Terminal Styling */
+
+    .window-content { flex: 1; width: 100%; border: none; background: #fff; min-height: 0; }
+
+    /* Offline Terminal */
     .offline-terminal {
-      flex: 1; background: #05070a; color: var(--cyan); 
-      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      flex: 1; background: #05070a; color: var(--cyan);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 20px; text-align: center;
-      background-image: linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+      background-image:
+        linear-gradient(rgba(0,229,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.02) 1px, transparent 1px);
       background-size: 20px 20px;
     }
     .term-icon { font-size: 40px; margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--saffron)); }
@@ -144,37 +191,75 @@
     @keyframes blink { 50% { opacity: 0; } }
 
     /* =========================================================
-       THUMB ZONE MATRIX (The Swipe Controller)
+       THUMB ZONE MATRIX
        ========================================================= */
     #os-minimap {
-      position: fixed; bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
-      left: 50%; transform: translateX(-50%); width: 220px; height: 220px;
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
+      left: 50%; transform: translateX(-50%);
+      width: 220px; height: 220px;
       z-index: 9999; touch-action: none;
-      background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(0,0,0,0.4); border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
       backdrop-filter: blur(10px);
     }
-    
+
     #grid-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-    #trace-line { fill: none; stroke: var(--cyan); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); transition: stroke 0.2s, filter 0.2s; }
-    
-    #dots-container { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); z-index: 2; }
+    #trace-line {
+      fill: none; stroke: var(--cyan); stroke-width: 4px;
+      stroke-linecap: round; stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px rgba(0,229,255,0.5));
+      transition: stroke 0.2s, filter 0.2s;
+    }
+
+    #dots-container {
+      position: absolute; inset: 0;
+      display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+      z-index: 2;
+    }
     .dot-cell { display: flex; align-items: center; justify-content: center; pointer-events: none; }
-    .dot { width: 10px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.2s; }
+    .dot {
+      width: 10px; height: 10px; background: rgba(255,255,255,0.2);
+      border-radius: 50%; transition: all 0.2s;
+    }
     .dot.active { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); transform: scale(1.5); }
     .dot.center-dot { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); background: transparent; }
+
+    /* Minimap hint label */
+    .minimap-hint {
+      position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing: 1px;
+      text-transform: uppercase; white-space: nowrap;
+    }
 
     /* SIGIL RECOGNITION */
     body.sigil-flash #trace-line { stroke: var(--saffron) !important; filter: drop-shadow(0 0 15px var(--saffron)) !important; }
     body.sigil-flash .dot.active { background: var(--saffron) !important; box-shadow: 0 0 15px var(--saffron) !important; }
     body.sigil-flash #room-title { color: var(--saffron); }
+
+    /* =========================================================
+       APP COUNT BADGE
+       ========================================================= */
+    #app-count-badge {
+      position: fixed; top: max(env(safe-area-inset-top), 12px); right: 16px;
+      z-index: 200; font-size: 10px; letter-spacing: 1.5px;
+      color: rgba(0,229,255,0.5); font-family: var(--font-mono);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
+  <!-- STARFIELD -->
+  <div id="starfield"></div>
+
   <!-- DIAGNOSTICS -->
   <div id="os-diagnostics"><div id="diag-content"></div></div>
 
-  <!-- WINDOW MANAGER (Viewports) -->
+  <!-- APP COUNT -->
+  <div id="app-count-badge"></div>
+
+  <!-- WINDOW MANAGER -->
   <div id="window-manager"></div>
 
   <!-- FRACTAL DESKTOP -->
@@ -187,10 +272,11 @@
     <div class="room-node-app" id="node-6"></div>
     <div class="room-node-app" id="node-7"></div>
     <div class="room-node-app" id="node-8"></div>
-    
+
     <div id="room-center">
       <div id="room-title">DAXINI OS</div>
       <div id="room-lore">Swipe from matrix center to launch apps. Tap center to clear screen.</div>
+      <div class="os-badge">v2.1.0 · GANDHIDHAM</div>
     </div>
   </div>
 
@@ -208,70 +294,182 @@
       <div class="dot-cell"><div class="dot" id="dot-7"></div></div>
       <div class="dot-cell"><div class="dot" id="dot-8"></div></div>
     </div>
+    <div class="minimap-hint">swipe to launch</div>
   </div>
 
   <script>
     /* =========================================================
-       1. DIAGNOSTICS ENGINE
+       1. STARFIELD GENERATOR
        ========================================================= */
-    const diagEl = document.getElementById('os-diagnostics');
+    (function() {
+      const sf = document.getElementById('starfield');
+      for (let i = 0; i < 80; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2 + 0.5;
+        star.style.cssText = `
+          width:${size}px; height:${size}px;
+          top:${Math.random()*100}%;
+          left:${Math.random()*100}%;
+          animation-duration:${2 + Math.random()*4}s;
+          animation-delay:${Math.random()*4}s;
+        `;
+        sf.appendChild(star);
+      }
+    })();
+
+    /* =========================================================
+       2. DIAGNOSTICS ENGINE
+       ========================================================= */
+    const diagEl   = document.getElementById('os-diagnostics');
     const diagContent = document.getElementById('diag-content');
     let tapCount = 0;
 
     document.body.addEventListener('touchstart', (e) => {
       if (e.touches[0].clientX < 60 && e.touches[0].clientY < 60) {
         tapCount++;
-        if (tapCount === 3) { diagEl.style.display = diagEl.style.display === 'none' ? 'block' : 'none'; tapCount = 0; }
+        if (tapCount === 3) {
+          diagEl.style.display = diagEl.style.display === 'none' ? 'block' : 'none';
+          tapCount = 0;
+        }
         setTimeout(() => tapCount = 0, 1500);
       }
     });
 
     function logDiag(type, msg) {
-      const now = new Date().toLocaleTimeString([], {hour12:false});
+      const now = new Date().toLocaleTimeString([], { hour12: false });
       const entry = document.createElement('div');
       entry.className = 'diag-log';
       entry.innerHTML = `<span class="diag-time">[${now}]</span> <strong>[${type}]</strong> ${msg}`;
       diagContent.prepend(entry);
-      if(diagContent.children.length > 8) diagContent.lastChild.remove();
-      console.log(`[OS] ${type}: ${msg}`);
+      if (diagContent.children.length > 10) diagContent.lastChild.remove();
+      console.log(`[DAXINI OS] ${type}: ${msg}`);
     }
 
     /* =========================================================
-       2. THE DAXINI MICRO-FRONTEND REGISTRY
+       3. THE DAXINI MICRO-FRONTEND REGISTRY
+       =========================================================
+       HOW IT WORKS:
+       ─────────────
+       Each key (0–8, excluding 4 = center) maps to a spatial
+       position on the 3×3 gesture grid.
+
+       url patterns:
+         GitHub Pages  → https://via-decide.github.io/{repo}/
+         Vercel        → https://{project}.vercel.app  OR custom domain
+         offline       → triggers the offline terminal UI
+
+       To add a new app:
+         1. Pick a free position (currently 5 is free)
+         2. Add the entry: { name, icon, url, status, desc }
+         3. Set status: "live" | "pending"
+         4. Deploy the repo to GitHub Pages or Vercel
+
+       The iframe sandbox flags allow:
+         scripts, same-origin (localStorage), forms, popups, downloads
        ========================================================= */
     const DAXINI_GALAXY = {
-      name: "Daxini Space",
-      lore: "The master application registry.",
+      name:  "Daxini Space",
+      lore:  "The master application registry.",
       apps: {
-        // --- LIVE MICRO-FRONTENDS (External Vercel/GitHub Pages URLs) ---
-        0: { name: "LogicHub", icon: "⚡", url: "https://logichub.app", status: "live" },
-        1: { name: "Daxini HQ", icon: "🏢", url: "https://daxini.xyz", status: "live" },
-        2: { name: "Alchemy", icon: "⚗️", url: "https://via-decide.github.io/PromptAlchemy/", status: "live" }, // Update if different
-        
-        // --- PENDING MIGRATION (Triggers the Offline Terminal) ---
-        3: { name: "SOP Builder", icon: "📄", url: "offline", status: "pending" },
-        5: { name: "SkillHex", icon: "🧠", url: "offline", status: "pending" },
-        6: { name: "ViaLogic", icon: "🕹️", url: "offline", status: "pending" },
-        7: { name: "ViaMath", icon: "🔢", url: "offline", status: "pending" },
-        8: { name: "Mars Sim", icon: "🚀", url: "offline", status: "pending" }
+
+        // ── POSITION 0 (top-left) ─────────────────────────────
+        0: {
+          name:   "LogicHub",
+          icon:   "⚡",
+          url:    "https://logichub.app",
+          status: "live",
+          desc:   "Visual node-to-APK builder"
+        },
+
+        // ── POSITION 1 (top-center) ───────────────────────────
+        1: {
+          name:   "Daxini HQ",
+          icon:   "🏢",
+          url:    "https://daxini.xyz",
+          status: "live",
+          desc:   "Holding company & empire index"
+        },
+
+        // ── POSITION 2 (top-right) ────────────────────────────
+        2: {
+          name:   "Alchemy",
+          icon:   "⚗️",
+          url:    "https://via-decide.github.io/PromptAlchemy/",
+          status: "live",
+          desc:   "Prompt generation pipeline"
+        },
+
+        // ── POSITION 3 (mid-left) ─────────────────────────────
+        3: {
+          name:   "SOP Builder",
+          icon:   "📄",
+          url:    "offline",
+          status: "pending",
+          desc:   "Standard ops builder — in queue"
+        },
+
+        // ── POSITION 4 = CENTER (reserved for gesture engine) ─
+        // Do NOT add an app here. Position 4 is the gesture origin.
+
+        // ── POSITION 5 (mid-right) ────────────────────────────
+        // SkillHex REMOVED. Replaced with Daxini Lens.
+        5: {
+          name:   "Daxini Lens",
+          icon:   "🎬",
+          url:    "https://via-decide.github.io/video-to-pdf/",
+          status: "live",
+          desc:   "Screen recording → PDF guide"
+        },
+
+        // ── POSITION 6 (bottom-left) ──────────────────────────
+        6: {
+          name:   "ViaLogic",
+          icon:   "🕹️",
+          url:    "offline",
+          status: "pending",
+          desc:   "RPG math cartography — in queue"
+        },
+
+        // ── POSITION 7 (bottom-center) ────────────────────────
+        // StudyOS from decide.engine-tools repo
+        7: {
+          name:   "StudyOS",
+          icon:   "📚",
+          url:    "https://via-decide.github.io/decide.engine-tools/StudyOS/",
+          status: "live",
+          desc:   "Modular study engine for exams"
+        },
+
+        // ── POSITION 8 (bottom-right) ─────────────────────────
+        8: {
+          name:   "Mars Sim",
+          icon:   "🚀",
+          url:    "offline",
+          status: "pending",
+          desc:   "Simulation engine — in queue"
+        }
       }
     };
 
+    // Secret master sigil — draws a Z-pattern on the grid
     const MASTER_KEY_SIGIL = "1,4,7,6,3,4,5,2,5,8";
 
     /* =========================================================
-       3. HYBRID RENDER ENGINE (Visual Nodes)
+       4. HYBRID RENDER ENGINE (Visual Nodes)
        ========================================================= */
     function renderRoom() {
-      const titleEl = document.getElementById('room-title');
-      const loreEl = document.getElementById('room-lore');
-      titleEl.innerText = DAXINI_GALAXY.name;
-      loreEl.innerText = DAXINI_GALAXY.lore;
+      document.getElementById('room-title').innerText = DAXINI_GALAXY.name;
+      document.getElementById('room-lore').innerText  = DAXINI_GALAXY.lore;
 
-      [0,1,2,3,5,6,7,8].forEach(pos => {
-        const nodeEl = document.getElementById(`node-${pos}`);
+      const liveCount = Object.values(DAXINI_GALAXY.apps).filter(a => a.status === 'live').length;
+      document.getElementById('app-count-badge').textContent =
+        `${liveCount} LIVE · ${Object.keys(DAXINI_GALAXY.apps).length} TOTAL`;
+
+      [0, 1, 2, 3, 5, 6, 7, 8].forEach(pos => {
+        const nodeEl  = document.getElementById(`node-${pos}`);
         const appData = DAXINI_GALAXY.apps[pos];
-        
+
         if (appData) {
           nodeEl.style.display = 'flex';
           const statusClass = appData.status === 'live' ? 'status-live' : 'status-pending';
@@ -280,6 +478,7 @@
             <div class="app-icon">${appData.icon}</div>
             <div class="app-name">${appData.name}</div>
           `;
+          nodeEl.title   = appData.desc || appData.name;
           nodeEl.onclick = () => launchApp(pos);
         } else {
           nodeEl.style.display = 'none';
@@ -289,8 +488,11 @@
 
     function animateFractalTransition(targetPos, isRecall) {
       const room = document.getElementById('room-environment');
-      const origins = { 0:"top left", 1:"top center", 2:"top right", 3:"center left", 5:"center right", 6:"bottom left", 7:"bottom center", 8:"bottom right" };
-      
+      const origins = {
+        0: "top left",    1: "top center",    2: "top right",
+        3: "center left",                     5: "center right",
+        6: "bottom left", 7: "bottom center", 8: "bottom right"
+      };
       room.style.transformOrigin = isRecall ? "center center" : (origins[targetPos] || "center");
       room.style.transform = isRecall ? "scale(0.5)" : "scale(2.5)";
       room.style.opacity = "0";
@@ -299,45 +501,63 @@
         renderRoom();
         room.style.transition = "none";
         room.style.transform = isRecall ? "scale(2.5)" : "scale(0.5)";
-        void room.offsetWidth; // Force Reflow
+        void room.offsetWidth; // force reflow
         room.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s";
         room.style.transform = "scale(1)";
-        room.style.opacity = "1";
+        room.style.opacity   = "1";
       }, 300);
     }
 
     /* =========================================================
-       4. SMART IFRAME ROUTER (Prevents 404s)
+       5. SMART IFRAME ROUTER
+       =========================================================
+       Decision tree:
+         status === "live" AND url !== "offline"
+           → render <iframe src="url" sandbox="...">
+         else
+           → render offline terminal with app name
        ========================================================= */
     const wm = document.getElementById('window-manager');
-    
+
     function launchApp(posIndex) {
       const appData = DAXINI_GALAXY.apps[posIndex];
       if (!appData) return;
-      
-      logDiag('ROUTER', `Booting ${appData.name} [Status: ${appData.status}]`);
-      wm.innerHTML = ''; // Clear active viewports
-      
+
+      logDiag('ROUTER', `Booting "${appData.name}" [${appData.status.toUpperCase()}] → ${appData.url}`);
+      wm.innerHTML = ''; // clear active viewports
+
       const win = document.createElement('div');
       win.className = 'glass-window';
-      
+
       let windowContent = '';
       let statusIndicator = '';
 
-      // ROUTING LOGIC: If Live -> Iframe. If Pending -> Terminal.
       if (appData.status === 'live' && appData.url !== 'offline') {
-        statusIndicator = `<div class="status-dot status-live" style="position:relative; top:0; right:0;"></div>`;
-        windowContent = `<iframe class="window-content" src="${appData.url}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>`;
+        // ── LIVE PATH: load URL in sandboxed iframe ──────────
+        statusIndicator = `<div class="status-dot status-live" style="position:relative;top:0;right:0;"></div>`;
+        windowContent = `
+          <iframe
+            class="window-content"
+            src="${appData.url}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+            loading="lazy"
+          ></iframe>
+        `;
       } else {
-        statusIndicator = `<div class="status-dot status-pending" style="position:relative; top:0; right:0;"></div>`;
+        // ── OFFLINE PATH: terminal UI, no 404 ever hits user ─
+        statusIndicator = `<div class="status-dot status-pending" style="position:relative;top:0;right:0;"></div>`;
         windowContent = `
           <div class="offline-terminal">
-            <div class="term-icon">⚠️</div>
+            <div class="term-icon">⚙️</div>
             <div class="term-title">MODULE OFFLINE</div>
             <p class="term-desc">
-              HTTP 404 avoided. System proxy intercepted request.<br><br>
-              The <strong style="color: #fff;">${appData.name}</strong> artifact is currently in the build queue awaiting deployment to the Vercel Edge Network.<br><br>
-              <span style="color: var(--saffron);">STATUS: PENDING MIGRATION <span class="term-blink">_</span></span>
+              HTTP 404 intercepted. System proxy active.<br><br>
+              <strong style="color:#fff;">${appData.name}</strong>
+              ${appData.desc ? `<br><span style="color:#666; font-size:10px;">${appData.desc}</span>` : ''}
+              <br><br>
+              is in the build queue and awaiting deployment<br>to the Vercel Edge Network.<br><br>
+              <span style="color:var(--saffron);">STATUS: PENDING MIGRATION <span class="term-blink">_</span></span>
             </p>
           </div>
         `;
@@ -346,94 +566,135 @@
       win.innerHTML = `
         <div class="window-header">
           <span class="window-title">${statusIndicator} ${appData.name}</span>
-          <span class="window-close" title="Close">✕</span>
+          <div class="window-controls">
+            ${appData.status === 'live' ? `<span class="window-btn" onclick="reloadFrame(this)" title="Reload">↺</span>` : ''}
+            <span class="window-close" title="Close" onclick="this.closest('.glass-window').remove(); logDiag('TERMINATE','Closed ${appData.name}');">✕</span>
+          </div>
         </div>
         ${windowContent}
       `;
-      
-      win.querySelector('.window-close').addEventListener('click', () => {
-        win.remove();
-        logDiag('TERMINATE', `Closed ${appData.name}`);
-      });
-      
+
       wm.appendChild(win);
     }
 
+    // Reload iframe without closing window
+    window.reloadFrame = function(btn) {
+      const iframe = btn.closest('.glass-window').querySelector('iframe');
+      if (iframe) iframe.src = iframe.src;
+    };
+
     /* =========================================================
-       5. MATRIX GESTURE ENGINE
+       6. MATRIX GESTURE ENGINE
        ========================================================= */
-    const minimap = document.getElementById('os-minimap');
-    const svgLine = document.getElementById('trace-line');
-    let path = [];
-    let isTracing = false;
+    const minimap   = document.getElementById('os-minimap');
+    const svgLine   = document.getElementById('trace-line');
+    let path        = [];
+    let isTracing   = false;
 
     function getDotCenter(idx) {
-      const dot = document.getElementById(`dot-${idx}`);
-      const rect = dot.getBoundingClientRect();
+      const dot     = document.getElementById(`dot-${idx}`);
+      const rect    = dot.getBoundingClientRect();
       const mapRect = minimap.getBoundingClientRect();
-      return { x: rect.left - mapRect.left + rect.width/2, y: rect.top - mapRect.top + rect.height/2 };
+      return {
+        x: rect.left - mapRect.left + rect.width  / 2,
+        y: rect.top  - mapRect.top  + rect.height / 2
+      };
     }
 
     function drawSVG(touchX, touchY) {
-      let pts = path.map(idx => { let c = getDotCenter(idx); return `${c.x},${c.y}`; });
-      if(isTracing && touchX !== undefined) pts.push(`${touchX},${touchY}`);
+      let pts = path.map(idx => {
+        const c = getDotCenter(idx);
+        return `${c.x},${c.y}`;
+      });
+      if (isTracing && touchX !== undefined) pts.push(`${touchX},${touchY}`);
       svgLine.setAttribute('points', pts.join(' '));
     }
 
     function handleTouch(e) {
-      const t = e.touches ? e.touches[0] : e;
+      const t       = e.touches ? e.touches[0] : e;
       const mapRect = minimap.getBoundingClientRect();
-      const x = t.clientX - mapRect.left;
-      const y = t.clientY - mapRect.top;
-      
-      const col = Math.floor((x / mapRect.width) * 3);
+      const x       = t.clientX - mapRect.left;
+      const y       = t.clientY - mapRect.top;
+
+      const col = Math.floor((x / mapRect.width)  * 3);
       const row = Math.floor((y / mapRect.height) * 3);
-      
+
       if (col >= 0 && col <= 2 && row >= 0 && row <= 2) {
         const idx = row * 3 + col;
         if (path.length === 0 || path[path.length - 1] !== idx) {
           path.push(idx);
           document.getElementById(`dot-${idx}`).classList.add('active');
-          if(navigator.vibrate) navigator.vibrate(15);
+          if (navigator.vibrate) navigator.vibrate(15);
         }
       }
       drawSVG(x, y);
     }
 
-    // Touch Support
-    minimap.addEventListener('touchstart', e => { e.preventDefault(); isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch(e); });
-    minimap.addEventListener('touchmove', e => { e.preventDefault(); if (isTracing) handleTouch(e); });
-    minimap.addEventListener('touchend', e => { e.preventDefault(); isTracing = false; drawSVG(); processPattern(); });
+    // ── Touch ──
+    minimap.addEventListener('touchstart', e => {
+      e.preventDefault();
+      isTracing = true; path = [];
+      document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+      handleTouch(e);
+    });
+    minimap.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (isTracing) handleTouch(e);
+    });
+    minimap.addEventListener('touchend', e => {
+      e.preventDefault();
+      isTracing = false; drawSVG();
+      processPattern();
+    });
 
-    // Mouse Support for Desktop
+    // ── Mouse (desktop) ──
     let isMouseDown = false;
-    minimap.addEventListener('mousedown', e => { isMouseDown = true; isTracing = true; path = []; document.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); handleTouch(e); });
-    minimap.addEventListener('mousemove', e => { if (isMouseDown && isTracing) handleTouch(e); });
-    window.addEventListener('mouseup', () => { if(isMouseDown){ isMouseDown = false; isTracing = false; drawSVG(); processPattern(); }});
+    minimap.addEventListener('mousedown', e => {
+      isMouseDown = true; isTracing = true; path = [];
+      document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+      handleTouch(e);
+    });
+    minimap.addEventListener('mousemove', e => {
+      if (isMouseDown && isTracing) handleTouch(e);
+    });
+    window.addEventListener('mouseup', () => {
+      if (isMouseDown) {
+        isMouseDown = false; isTracing = false; drawSVG();
+        processPattern();
+      }
+    });
 
     /* =========================================================
-       6. OS EVENT LOOP
+       7. OS EVENT LOOP — PATTERN → ACTION MAPPING
+       =========================================================
+       Pattern               Action
+       ────────────────────────────────────────────────
+       [4]                   Clear all viewports
+       [4, X]                Launch app at position X
+       MASTER_KEY_SIGIL      Secret: launch Daxini HQ
        ========================================================= */
     function processPattern() {
       const seed = path.join(',');
       if (!seed) return;
 
+      // Auto-clear visual trace after 500ms
       setTimeout(() => {
-        if(!isTracing) {
-           svgLine.setAttribute('points', '');
-           document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-           document.body.classList.remove('sigil-flash');
+        if (!isTracing) {
+          svgLine.setAttribute('points', '');
+          document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+          document.body.classList.remove('sigil-flash');
         }
       }, 500);
 
+      // ── Master sigil ─────────────────────────────────────
       if (seed === MASTER_KEY_SIGIL) {
         document.body.classList.add('sigil-flash');
-        logDiag('MASTER_SIGIL', 'Cryptographic signature recognized.');
-        setTimeout(() => { launchApp(1); }, 300); // Launches Daxini HQ
+        logDiag('MASTER_SIGIL', 'Cryptographic signature verified. Welcome, Antigravity.');
+        setTimeout(() => launchApp(1), 300);
         return;
       }
 
-      // App Launch (Swipe from center '4' to any outer node)
+      // ── Swipe: center → any node ─────────────────────────
       if (path.length === 2 && path[0] === 4) {
         const target = path[1];
         if (DAXINI_GALAXY.apps[target]) {
@@ -443,20 +704,35 @@
         return;
       }
 
-      // Clear Screen (Tap Center '4')
+      // ── Tap center: clear screen ─────────────────────────
       if (path.length === 1 && path[0] === 4) {
         wm.innerHTML = '';
         animateFractalTransition(4, true);
-        logDiag('SYSTEM', 'Cleared active viewports.');
+        logDiag('SYSTEM', 'Cleared all active viewports.');
+        return;
+      }
+
+      // ── Direct node tap (tap any node without center) ────
+      if (path.length === 1 && path[0] !== 4) {
+        const target = path[0];
+        if (DAXINI_GALAXY.apps[target]) {
+          animateFractalTransition(target, false);
+          setTimeout(() => launchApp(target), 300);
+        }
         return;
       }
     }
 
-    // Boot
+    /* =========================================================
+       8. BOOT SEQUENCE
+       ========================================================= */
     renderRoom();
-    logDiag('SYSTEM', 'Daxini Space OS Online. Micro-Frontend router active.');
+    logDiag('SYSTEM', 'Daxini Space OS v2.1.0 online. Micro-Frontend router armed.');
+    logDiag('REGISTRY', `${Object.keys(DAXINI_GALAXY.apps).length} apps registered. ${Object.values(DAXINI_GALAXY.apps).filter(a=>a.status==='live').length} live.`);
+    logDiag('NEW', 'Daxini Lens (video→PDF) deployed at node-5.');
+    logDiag('NEW', 'StudyOS (decide.engine-tools) deployed at node-7.');
+    logDiag('REMOVED', 'SkillHex removed from node-5.');
 
   </script>
 </body>
 </html>
-
