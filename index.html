@@ -297,7 +297,9 @@
       pointer-events: none;
     }
 
-
+    /* =========================================================
+       SEO SUMMARY PANEL — hides when any app is open
+       ========================================================= */
     .seo-summary-panel {
       position: fixed;
       top: max(env(safe-area-inset-top), 14px);
@@ -311,6 +313,13 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      /* smooth transition for hide/show */
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .seo-summary-panel.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
     }
     .seo-summary-panel h2 {
       font-family: var(--font-display);
@@ -830,6 +839,16 @@
     }
 
     /* =========================================================
+       SEO PANEL HELPERS
+       ========================================================= */
+    function hideSeoPanel() {
+      document.querySelector('.seo-summary-panel')?.classList.add('hidden');
+    }
+    function showSeoPanel() {
+      document.querySelector('.seo-summary-panel')?.classList.remove('hidden');
+    }
+
+    /* =========================================================
        5. SMART IFRAME ROUTER
        ========================================================= */
     const wm = document.getElementById('window-manager');
@@ -846,6 +865,9 @@
 
       logDiag('ROUTER', `Booting "${appData.name}" [${appData.status.toUpperCase()}] → ${appData.url}`);
       wm.innerHTML = '';
+
+      // ── Hide the SEO panel so it doesn't block the iframe ──
+      hideSeoPanel();
 
       const win = document.createElement('div');
       win.className = 'glass-window';
@@ -921,6 +943,8 @@
       applyHomeRoom();
       renderRoom();
       syncRoute('', false);
+      // ── Restore SEO panel when app is closed ──
+      showSeoPanel();
       logDiag('TERMINATE', `Closed ${name || slug}`);
     }
 
@@ -952,6 +976,8 @@
         wm.innerHTML = '';
         applyHomeRoom();
         renderRoom();
+        // ── Restore SEO panel on browser back to home ──
+        showSeoPanel();
       }
     });
 
@@ -1061,7 +1087,6 @@
       if (ENGINE_TOOLS_SIGILS.includes(seed)) {
         document.body.classList.add('sigil-flash');
         logDiag('ENGINE_TOOLS', 'Repository sigil verified. Spawning external link.');
-        // Bypass popup blockers by opening natively in this gesture loop
         window.open("https://github.com/via-decide/decide.engine-tools.git", "_blank");
         return;
       }
@@ -1081,6 +1106,8 @@
       // ── Tap center: clear screen ─────────────────────────
       if (path.length === 1 && path[0] === 4) {
         wm.innerHTML = '';
+        // ── Restore SEO panel on clear ──
+        showSeoPanel();
         animateFractalTransition(4, true);
         logDiag('SYSTEM', 'Cleared all active viewports.');
         return;
@@ -1110,4 +1137,3 @@
   </script>
 </body>
 </html>
-
